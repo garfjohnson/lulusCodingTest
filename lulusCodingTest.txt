@@ -1,0 +1,128 @@
+Lulus Coding Test
+Wade Johnson
+3/22/21
+
+1) Wanda Young
+SELECT e.first_name, e.last_name, MAX(s.salary)
+FROM employees e
+INNER  JOIN salary s ON
+	e.id = s.employee_id;
+
+2) 2009
+SELECT COUNT(first_name),strftime('%Y', hire_date) 
+FROM employees
+GROUP BY strftime('%Y', hire_date)
+ORDER BY COUNT(first_name) DESC;
+
+3) Feb 2005 for $372,474.08
+SELECT strftime('%Y-%m', order_date), COUNT(order_number) 
+FROM orders
+GROUP BY strftime('%Y-%m', order_date)
+ORDER BY COUNT(order_number) DESC;
+--------------------------------------------------------------
+SELECT SUM(op.quantity * p.price) FROM order_products op
+INNER JOIN orders o ON op.order_number = o.order_number
+INNER JOIN products p ON op.product_id = p.product_id
+WHERE strftime('%Y-%m', o.order_date) = '2005-02';
+
+4) 5
+SELECT COUNT(order_number) FROM orders
+WHERE strftime('%Y-%m', order_date) = '2015-07';
+
+5) 79
+SELECT COUNT(order_number), customer_id
+FROM orders
+GROUP BY customer_id
+ORDER BY COUNT(order_number) DESC;
+
+6) 
+project_id	avg salary ($)
+1		129,266.32
+2		124,610.49
+3		129,090.07
+4		130,816.37
+5		120,208.61
+6		127,734.63
+7		127,379.25
+8		120,474.49
+9		131,985.7
+10		122,070.76
+
+SELECT p.project_id, ROUND(AVG(s.salary),2) FROM projects p
+INNER JOIN salary s USING(employee_id)
+GROUP BY p.project_id
+
+7) customer_id 84
+
+SELECT 
+	o.customer_id, 
+	SUM((op.quantity * p.price) - o.shipping_cost - IFNULL(o.discount_amount,0))
+FROM order_products op
+INNER JOIN orders o ON op.order_number = o.order_number
+INNER JOIN products p ON op.product_id = p.product_id
+GROUP BY o.customer_id
+ORDER BY 
+SUM((op.quantity * p.price) - o.shipping_cost - IFNULL(o.discount_amount,0)) DESC;
+
+8) Kuravent-284301307-0 is the most ordered product by quantity
+
+SELECT p.name, SUM(op.quantity) FROM order_products op
+INNER JOIN products p USING (product_id)
+GROUP BY p.name
+ORDER BY SUM(op.quantity) DESC;
+
+BE-873161309-8 is the least ordered product by quantity
+
+SELECT p.name, SUM(op.quantity) FROM order_products op
+INNER JOIN products p USING (product_id)
+GROUP BY p.name
+ORDER BY SUM(op.quantity);
+
+9) Diana Hawkins and Ryan Ruiz have both worked on 5 separate projects
+
+SELECT COUNT(p.project_id), e.first_name, e.last_name FROM projects p
+INNER JOIN employees e ON p.employee_id = e.id
+GROUP BY e.id
+ORDER BY COUNT(p.project_id) DESC;
+
+Diana Hawkins has worked 467 project hours. Assuming a 2,080 hour work year, she has earned $33,448.93 on projects.
+
+SELECT SUM(p.project_hours), AVG(s.salary) FROM employees e
+INNER JOIN projects p ON e.id = p.employee_id
+INNER JOIN salary s ON e.id = s.employee_id
+WHERE e.id = 799
+GROUP BY e.id;
+
+10) $80,497.46 (Arthur Bailey has worked 1 hour on 1 project)
+
+SELECT COUNT(p.project_id), e.first_name, e.last_name, p.project_hours, s.salary FROM projects p
+INNER JOIN employees e ON p.employee_id = e.id
+INNER JOIN salary s ON s.employee_id = e.id
+GROUP BY e.id
+ORDER BY COUNT(p.project_id), project_hours;
+
+11) Category 4 @ $5,182,085.38
+
+SELECT c.category_name, SUM(p.price * op.quantity) FROM products p
+INNER JOIN categories c USING (category_id)
+INNER JOIN order_products op USING (product_id)
+GROUP BY category_name
+ORDER BY SUM(p.price * op.quantity) DESC;
+
+12) Returns a table with 183 rows representing each month. I struggled to combine the two queries into a single table.
+
+SELECT op.quantity, strftime('%Y-%m', o.order_date)
+FROM orders o
+INNER JOIN order_products op USING (order_number)
+GROUP BY strftime('%Y-%m', o.order_date)
+HAVING MIN(o.order_date)
+-----------------------------------------------
+SELECT op.quantity, strftime('%Y-%m', o.order_date)
+FROM orders o
+INNER JOIN order_products op USING (order_number)
+GROUP BY strftime('%Y-%m', o.order_date)
+HAVING MAX(o.order_date)
+
+13) I used SQLite in order to get up and running quickly. 
+
+14) Workflow: Downloaded the CSVs --> Imported them into SQLite using DB Browser
