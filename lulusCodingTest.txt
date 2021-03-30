@@ -14,16 +14,17 @@ FROM employees
 GROUP BY strftime('%Y', hire_date)
 ORDER BY COUNT(first_name) DESC;
 
-3) Feb 2005 for $372,474.08
-SELECT strftime('%Y-%m', order_date), COUNT(order_number) 
-FROM orders
-GROUP BY strftime('%Y-%m', order_date)
-ORDER BY COUNT(order_number) DESC;
---------------------------------------------------------------
+3) Aug 2011 for $539,842.91
+SELECT strftime('%Y-%m', o.order_date), SUM(op.quantity)
+FROM order_products op
+INNER JOIN orders o USING (order_number)
+GROUP BY strftime('%Y-%m', o.order_date)
+ORDER BY SUM(op.quantity) DESC;
+---------------------------------------------
 SELECT SUM(op.quantity * p.price) FROM order_products op
 INNER JOIN orders o ON op.order_number = o.order_number
 INNER JOIN products p ON op.product_id = p.product_id
-WHERE strftime('%Y-%m', o.order_date) = '2005-02';
+WHERE strftime('%Y-%m', o.order_date) = '2011-08';
 
 4) 5
 SELECT COUNT(order_number) FROM orders
